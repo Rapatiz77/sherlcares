@@ -1,8 +1,8 @@
 /* ====== À MODIFIER ====== */
 const WHATSAPP = "50955105543"; // +509 5510-5543
 const DEVISE = "USD";
+const HERO_PHOTO = "sherl-shampoo.jpg"; // photo affichée en haut de l'accueil
 // price : null = "Prix sur demande" (ou mets un chiffre, ex. 10)
-// shape : "" (flacon), "jar" (pot), "soap" (savon), "shampoo" (shampooing)
 const HAIR = [
   { id: 1, name: "SHERL OIL Extra Pousse — 50 ml", shape: "", l1: "SHERL", l2: "OIL", l3: "EXTRA POUSSE", desc: "Hibiscus, gingembre, romarin, feuilles naturelles et huiles végétales. 2 fois par semaine, usage externe." },
   { id: 2, name: "Huile Coiffante — 50 ml", shape: "", l1: "SHERLCARE", l2: "HUILE", l3: "COIFFANTE", desc: "Huile naturelle pour la pousse des cheveux." },
@@ -22,14 +22,14 @@ const SOAPS = ["Carotte", "Citron", "Curcuma", "Avoine", "Riz", "Charbon actif",
 
 const PRODUCTS = [...HAIR, ...SOAPS];
 
-// Photos : dossier "images" placé à côté d'index.html (id du produit -> nom du fichier)
+// Photos placées à côté d'index.html (id du produit -> nom du fichier, sans .jpg)
 const IMAGES = {
   1: "sherl-oil", 2: "huile-coiffante", 3: "soin-coiffant", 4: "sherl-gel",
   5: "sherl-pommade", 6: "sherl-shampoo", 7: "shampoo-homme", 8: "apres-shampooing",
   20: "soap-carotte", 21: "soap-citron", 22: "soap-curcuma", 23: "soap-avoine",
   24: "soap-riz", 25: "soap-charbon", 26: "soap-neem"
 };
-PRODUCTS.forEach((p) => { p.img = IMAGES[p.id] ? "images/" + IMAGES[p.id] + ".jpg" : ""; });
+PRODUCTS.forEach((p) => { p.img = IMAGES[p.id] ? IMAGES[p.id] + ".jpg" : ""; });
 /* ======================== */
 
 const $ = (id) => document.getElementById(id);
@@ -108,6 +108,15 @@ function openCart(open) {
 }
 
 document.addEventListener("click", (e) => {
+  const img = e.target.closest(".product-art img");
+  if (img) {
+    const box = document.createElement("div");
+    box.className = "lightbox";
+    box.innerHTML = `<img src="${img.src}" alt="${img.alt}">`;
+    box.onclick = () => box.remove();
+    document.body.appendChild(box);
+    return;
+  }
   const b = e.target.closest("button");
   if (!b) return;
   const d = b.dataset;
@@ -151,17 +160,26 @@ $("bookingForm").addEventListener("submit", (e) => {
 $("whatsappContact").href = "https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent("Bonjour SHERLCARE, j'ai une question.");
 $("year").textContent = new Date().getFullYear();
 
-// Toucher une photo pour l'agrandir, toucher à nouveau pour fermer
-document.addEventListener("click", (e) => {
-  const img = e.target.closest(".product-art img");
-  if (img) {
-    const box = document.createElement("div");
-    box.className = "lightbox";
-    box.innerHTML = `<img src="${img.src}" alt="${img.alt}">`;
-    box.onclick = () => box.remove();
-    document.body.appendChild(box);
-  }
-});
+// Photo d'accueil à la place des flacons dessinés
+const heroCard = document.querySelector(".hero-card");
+if (heroCard && HERO_PHOTO) {
+  const hp = new Image();
+  hp.alt = "SHERLCARE";
+  hp.onload = () => {
+    heroCard.querySelectorAll(".bottle").forEach((b) => b.remove());
+    heroCard.prepend(hp);
+  };
+  hp.src = HERO_PHOTO;
+}
+
+// Apparition douce des sections au défilement
+const blocks = document.querySelectorAll(".trust-strip,.section,.care-banner,.newsletter");
+if ("IntersectionObserver" in window) {
+  const io = new IntersectionObserver((entries) => entries.forEach((en) => {
+    if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
+  }), { threshold: 0.08 });
+  blocks.forEach((el) => { el.classList.add("reveal"); io.observe(el); });
+}
 
 renderProducts();
 renderCart();
