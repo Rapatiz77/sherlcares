@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="SHERLCARE — soins capillaires et cosmétiques. Découvrez nos huiles, gels, shampooings, pomades et savons.">
+  <title>SHERLCARE | Boutique officielle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="announcement">SHERLCARE COSMÉTIQUES <span>—</span> La beauté commence par le soin.</div>
+  <header class="site-header">
+    <a class="brand" href="#accueil" aria-label="SHERLCARE accueil">
+      <span class="brand-mark">S</span>
+      <span class="brand-name">SHERL<span>CARE</span><small>COSMÉTIQUES</small></span>
+    </a>
+    <button class="menu-toggle" id="menuToggle" aria-label="Ouvrir le menu">☰</button>
+    <nav id="mainNav">
+      <a href="#accueil">Accueil</a><a href="#boutique">Boutique</a><a href="#soins">Soins capillaires</a><a href="#apropos">Notre histoire</a><a href="#contact">Contact</a>
+    </nav>
+    <button class="cart-button" id="cartOpen">Panier <span id="cartCount">0</span></button>
+  </header>
+
+  <main>
+    <section class="hero" id="accueil">
+      <div class="hero-copy">
+        <p class="eyebrow">LE RITUEL SHERLCARE</p>
+        <h1>Des soins pensés<br>pour révéler <em>vos cheveux.</em></h1>
+        <p class="hero-text">Découvrez notre gamme de soins capillaires et de cosmétiques, conçue pour accompagner votre routine beauté.</p>
+        <div class="hero-actions"><a class="button button-gold" href="#boutique">Découvrir la boutique</a><a class="text-link" href="#soins">Réserver un soin <span>↗</span></a></div>
+        <div class="hero-note"><span class="dot"></span> Votre routine beauté, à votre rythme.</div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-orbit"></div>
+        <div class="hero-card">
+          <div class="bottle bottle-oil"><span>SHERL</span><b>OIL</b><small>EXTRA POUSSE</small></div>
+          <div class="bottle bottle-gel"><span>SHERL</span><b>GEL</b><small>EXTRA POUSSE</small></div>
+          <div class="hero-stamp">SOIN<br><b>& BEAUTÉ</b></div>
+        </div>
+        <p class="visual-caption">SHERLCARE · Votre beauté, votre rituel</p>
+      </div>
+    </section>
+
+    <section class="trust-strip">
+      <div><span>01</span><p><b>Une gamme complète</b><small>Des soins pour vos routines beauté</small></p></div>
+      <div><span>02</span><p><b>Commande simplifiée</b><small>Choisissez vos produits en quelques clics</small></p></div>
+      <div><span>03</span><p><b>Soins sur rendez-vous</b><small>Réservez votre moment capillaire</small></p></div>
+    </section>
+
+    <section class="section products-section" id="boutique">
+      <div class="section-heading">
+        <div><p class="eyebrow">LA BOUTIQUE</p><h2>Nos essentiels <em>beauté</em></h2></div>
+        <p>Explorez la gamme SHERLCARE et composez votre rituel.</p>
+      </div>
+      <div class="filter-row" id="filters">
+        <button class="filter active" data-filter="Tous">Tous les produits</button>
+        <button class="filter" data-filter="Cheveux">Soins capillaires</button>
+        <button class="filter" data-filter="Savons">Savons</button>
+      </div>
+      <div class="product-grid" id="productGrid"></div>
+    </section>
+
+    <section class="care-banner" id="soins">
+      <div class="care-art"><div class="care-circle">SHERL<br><b>CARE</b><small>HAIR RITUAL</small></div></div>
+      <div class="care-copy">
+        <p class="eyebrow">PRENDRE SOIN DE SOI</p>
+        <h2>Votre prochain rendez-vous<br><em>commence ici.</em></h2>
+        <p>Choisissez le soin souhaité et envoyez votre demande de rendez-vous. La réservation sera confirmée après vérification des disponibilités.</p>
+        <form id="bookingForm" class="booking-form">
+          <label>Nom complet<input name="name" required placeholder="Votre nom"></label>
+          <label>Téléphone / WhatsApp<input name="phone" required placeholder="+1 ..."></label>
+          <label>Prestation<select name="service" required><option value="">Choisir un soin</option><option>Consultation capillaire</option><option>Lavage et soin des cheveux</option><option>Soin hydratant</option><option>Application de traitement capillaire</option><option>Autre prestation</option></select></label>
+          <div class="form-two"><label>Date souhaitée<input type="date" name="date" required></label><label>Heure souhaitée<input type="time" name="time" required></label></div>
+          <label>Message (facultatif)<textarea name="message" rows="2" placeholder="Précisions sur votre demande"></textarea></label>
+          <button class="button button-dark" type="submit">Envoyer la demande</button>
+          <p class="form-note">La demande n'est pas une confirmation automatique du rendez-vous.</p>
+        </form>
+      </div>
+    </section>
+
+    <section class="about-section section" id="apropos">
+      <div><p class="eyebrow">L'UNIVERS SHERLCARE</p><h2>La beauté dans<br><em>chaque détail.</em></h2></div>
+      <div class="about-text"><p>SHERLCARE réunit des produits de beauté et des soins capillaires dans un univers élégant, simple et accessible. Notre objectif : vous aider à construire une routine qui vous correspond.</p><a class="text-link" href="#boutique">Voir les produits <span>↗</span></a></div>
+    </section>
+
+    <section class="newsletter" id="contact">
+      <div><p class="eyebrow">RESTONS EN CONTACT</p><h2>Une question sur nos produits ?</h2><p>Contactez SHERLCARE pour les commandes, les produits et les soins capillaires.</p></div>
+      <a class="button button-gold" id="whatsappContact" href="#" target="_blank" rel="noopener">Écrire sur WhatsApp</a>
+    </section>
+  </main>
+
+  <footer>
+    <a class="brand footer-brand" href="#accueil"><span class="brand-mark">S</span><span class="brand-name">SHERL<span>CARE</span><small>COSMÉTIQUES</small></span></a>
+    <p>© <span id="year"></span> SHERLCARE COSMÉTIQUES. Tous droits réservés.</p>
+    <div><a href="#boutique">Boutique</a><a href="#soins">Rendez-vous</a><a href="#contact">Contact</a></div>
+  </footer>
+
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Panier">
+    <div class="drawer-head"><h2>Votre panier</h2><button id="cartClose" aria-label="Fermer">×</button></div>
+    <div id="cartItems" class="cart-items"><p class="empty-cart">Votre panier est vide.</p></div>
+    <div class="cart-bottom"><div class="total-line"><span>Total estimé</span><strong id="cartTotal">0,00 USD</strong></div><button id="checkoutBtn" class="button button-dark full-width">Commander sur WhatsApp</button><small>Le paiement en ligne sera activé après la configuration du prestataire de paiement.</small></div>
+  </aside>
+  <div class="toast" id="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>
