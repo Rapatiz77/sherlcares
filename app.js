@@ -1,6 +1,7 @@
 /* ====== À MODIFIER ====== */
-const WHATSAPP = "50955105543"; // +509 5510-5543
-const DEVISE = "USD";
+const WHATSAPP = "50955105543"; // numéro WhatsApp pour te contacter (commandes, rendez-vous)
+const WHATSAPP_AFFICHE = "+509 5510-5543";
+const DEVISE = "Gourde";
 const HERO_PHOTO = "sherl-shampoo.jpg"; // photo affichée en haut de l'accueil
 // price : null = "Prix sur demande" (ou mets un chiffre, ex. 10)
 const HAIR = [
@@ -30,6 +31,19 @@ const IMAGES = {
   24: "soap-riz", 25: "soap-charbon", 26: "soap-neem"
 };
 PRODUCTS.forEach((p) => { p.img = IMAGES[p.id] ? IMAGES[p.id] + ".jpg" : ""; });
+
+// LOGO : envoie ton image dans le dépôt sous le nom logo.png
+const LOGO = "logo.png";
+
+// VIDÉO PUB : envoie pub.mp4 dans le dépôt (25 Mo maximum depuis le navigateur),
+// ou colle un lien YouTube de la forme https://www.youtube.com/embed/XXXX
+const VIDEO = { youtube: "", file: "pub.mp4" };
+
+// PAIEMENT : moncash = ton numéro MonCash (affiché dans le panier pour payer)
+// natcash : ton numéro NatCash, "" si tu n'en as pas
+// paypalUser : ton nom PayPal.me (la partie après paypal.me/), "" si tu n'en as pas
+// rateHTG : combien de gourdes pour 1 USD (ex. 130) pour afficher le montant en gourdes. 0 = ne pas afficher
+const PAY = { moncash: "+509 4767-8252", natcash: "", paypalUser: "", rateHTG: 0 };
 /* ======================== */
 
 const $ = (id) => document.getElementById(id);
@@ -72,11 +86,48 @@ function renderProducts(filter = "Tous") {
     : '<p class="empty-cart">Bientôt disponible.</p>';
 }
 
-function totalText() {
+function cartSum() {
   const priced = cart.filter((i) => i.price != null);
   const sum = priced.reduce((s, i) => s + i.price * i.qty, 0);
-  if (!priced.length) return cart.length ? "Sur demande" : money(0);
-  return money(sum) + (priced.length < cart.length ? " + articles sur demande" : "");
+  return { sum, unpriced: priced.length < cart.length, hasPriced: priced.length > 0 };
+}
+
+function totalText() {
+  const { sum, unpriced, hasPriced } = cartSum();
+  if (!hasPriced) return cart.length ? "Sur demande" : money(0);
+  return money(sum) + (unpriced ? " + articles sur demande" : "");
+}
+
+function htgText(usd) {
+  return PAY.rateHTG > 0 ? " (≈ " + Math.ceil(usd * PAY.rateHTG).toLocaleString("fr-FR") + " HTG)" : "";
+}
+
+function payMethods() {
+  const m = [];
+  if (PAY.moncash) m.push(["moncash", "MonCash"]);
+  if (PAY.natcash) m.push(["natcash", "NatCash"]);
+  if (PAY.paypalUser) m.push(["paypal", "PayPal"]);
+  m.push(["cash", "Paiement à la livraison / en boutique"]);
+  return m;
+}
+
+function renderPay() {
+  const sel = $("payMethod");
+  if (!sel) return;
+  const m = sel.value;
+  const { sum, unpriced, hasPriced } = cartSum();
+  const exact = hasPriced && !unpriced;
+  const amount = exact ? money(sum) + htgText(sum) : "le montant confirmé par WhatsApp";
+  let h = "";
+  if (m === "moncash") h = "Envoie " + amount + " au MonCash <b>" + PAY.moncash + "</b>, puis écris le code de transaction ci-dessous.";
+  else if (m === "natcash") h = "Envoie " + amount + " au NatCash <b>" + PAY.natcash + "</b>, puis écris le code de transaction ci-dessous.";
+  else if (m === "paypal") {
+    h = exact
+      ? '<a target="_blank" rel="noopener" href="https://www.paypal.me/' + PAY.paypalUser + "/" + sum.toFixed(2) + DEVISE + '">Payer ' + money(sum) + " avec PayPal</a>Ensuite, écris le code de transaction ci-dessous."
+      : "Le montant doit d'abord être confirmé par WhatsApp avant de payer avec PayPal.";
+  } else h = "Tu paies à la réception de ta commande ou en boutique.";
+  $("payInfo").innerHTML = h;
+  $("payRef").style.display = m === "cash" ? "none" : "block";
 }
 
 function renderCart() {
@@ -93,6 +144,7 @@ function renderCart() {
   $("cartCount").textContent = cart.reduce((s, i) => s + i.qty, 0);
   $("cartTotal").textContent = totalText();
   try { localStorage.setItem("sherlcare-cart", JSON.stringify(cart)); } catch (e) {}
+  renderPay();
 }
 
 function change(id, delta) {
@@ -146,7 +198,12 @@ $("mainNav").onclick = (e) => { if (e.target.tagName === "A") $("mainNav").class
 $("checkoutBtn").onclick = () => {
   if (!cart.length) return toast("Votre panier est vide.");
   const lines = cart.map((i) => `• ${i.qty} x ${i.name} — ${i.price == null ? "prix à confirmer" : money(i.price * i.qty)}`).join("\n");
-  wa(`Bonjour SHERLCARE, je souhaite commander :\n${lines}\n\nTotal estimé : ${totalText()}`);
+  let text = `Bonjour SHERLCARE, je souhaite commander :\n${lines}\n\nTotal estimé : ${totalText()}`;
+  const sel = $("payMethod");
+  if (sel) text += `\nPaiement : ${sel.options[sel.selectedIndex].text}`;
+  const ref = $("payRef") ? $("payRef").value.trim() : "";
+  if (ref) text += `\nCode de transaction : ${ref}`;
+  wa(text);
 };
 
 $("bookingForm").addEventListener("submit", (e) => {
@@ -181,5 +238,49 @@ if ("IntersectionObserver" in window) {
   blocks.forEach((el) => { el.classList.add("reveal"); io.observe(el); });
 }
 
-renderProducts();
-renderCart();
+// Ajouts : logo, espace vidéo, contact et paiement (créés par le code, sans toucher à index.html)
+function setupExtras() {
+  const st = document.createElement("style");
+  st.textContent =
+    ".logo-band{display:flex;justify-content:center;padding:18px 16px;background:#12301a;border-bottom:2px solid #c9a227}" +
+    ".logo-band img{width:min(380px,90%);height:auto;border-radius:16px;box-shadow:0 10px 32px #0009}" +
+    ".inj-video{max-width:900px;margin:0 auto;padding:40px 16px}" +
+    ".inj-video h2{margin:0 0 16px}" +
+    ".inj-video video,.inj-video iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:16px;background:#000;display:block}" +
+    ".inj-ph{padding:40px 16px;text-align:center;border:2px dashed #c9a227;border-radius:16px}" +
+    ".inj-contact{display:grid;grid-template-columns:1fr 1fr;gap:12px}" +
+    "@media(max-width:560px){.inj-contact{grid-template-columns:1fr}}" +
+    ".inj-box{padding:18px;border:1px solid #c9a227;border-radius:16px;text-align:center;background:#12301a;color:#fff}" +
+    ".inj-box small{display:block;color:#c9a227;letter-spacing:2px;font-size:12px;margin-bottom:6px}" +
+    ".inj-box b,.inj-box a{display:block;font-size:20px;color:#fff;text-decoration:none}" +
+    ".inj-box span{display:block;margin-top:6px;font-size:13px;opacity:.85}" +
+    ".inj-pay{margin:12px 0}" +
+    ".inj-pay label{display:block;font-size:13px;opacity:.85}" +
+    ".inj-pay select,.inj-pay input{width:100%;padding:12px;margin-top:8px;border:1px solid #d6cfae;border-radius:10px;background:#fff;color:#14210f;font:inherit}" +
+    ".inj-info{margin-top:8px;padding:12px;border-radius:10px;background:#f4efdb;color:#14210f;font-size:14px}" +
+    ".inj-info a{display:block;margin:0 0 8px;padding:12px;border-radius:10px;background:#c9a227;color:#14210f;text-align:center;font-weight:700;text-decoration:none}";
+  document.head.appendChild(st);
+
+  if (LOGO) {
+    const im = new Image();
+    im.alt = "SHERLCARE Cosmétiques";
+    im.onload = () => {
+      const band = document.createElement("div");
+      band.className = "logo-band";
+      band.appendChild(im);
+      const h = document.querySelector("header");
+      h ? h.after(band) : document.body.prepend(band);
+    };
+    im.src = LOGO;
+  }
+
+  const grid = $("productGrid");
+  const host = grid ? (grid.closest("section") || grid.parentElement) : null;
+  if (host) {
+    const sec = document.createElement("section");
+    sec.className = "inj-video";
+    sec.innerHTML = "<h2>Nos produits en vidéo</h2><div id=\"videoBox\"></div>";
+    host.after(sec);
+    const box = sec.querySelector("#videoBox");
+    if (VIDEO.youtube) {
+      box.innerHTML = '<iframe src="' + VIDEO.youtube + '" title="Vidéo SHERLCARE" allow="autoplay; encrypted-media; fu
