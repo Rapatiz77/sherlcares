@@ -44,15 +44,26 @@ const VIDEO = { youtube: "", file: "pub.mp4" };
 // paypalUser : ton nom PayPal.me (la partie après paypal.me/), "" si tu n'en as pas
 // rateHTG : combien de gourdes pour 1 USD (ex. 130) pour afficher le montant en gourdes. 0 = ne pas afficher
 const PAY = { moncash: "+509 4767-8252", natcash: "", paypalUser: "", rateHTG: 0 };
+
+// RENDEZ-VOUS : modifie ces réglages selon ton salon
+const BOOKING = {
+  services: ["Consultation capillaire", "Lavage et soin des cheveux", "Soin hydratant", "Application de traitement capillaire", "Autre prestation"],
+  openDays: [1, 2, 3, 4, 5, 6], // 0 = dimanche, 1 = lundi ... 6 = samedi
+  from: 9,  // premier créneau : 9 = 09:00
+  to: 17,   // fin de journée : 17 = dernier créneau à 16:00
+  daysAhead: 60 // le client peut réserver jusqu'à 60 jours à l'avance
+};
 /* ======================== */
 
 const $ = (id) => document.getElementById(id);
+const on = (id, ev, fn) => { const el = $(id); if (el) el.addEventListener(ev, fn); };
 const money = (n) => (n == null ? "Prix sur demande" : n.toFixed(2).replace(".", ",") + " " + DEVISE);
 let cart = [];
 try { cart = JSON.parse(localStorage.getItem("sherlcare-cart")) || []; } catch (e) {}
 
 function toast(msg) {
   const t = $("toast");
+  if (!t) return;
   t.textContent = msg;
   t.classList.add("show");
   clearTimeout(toast.id);
@@ -64,8 +75,10 @@ function wa(text) {
 }
 
 function renderProducts(filter = "Tous") {
+  const grid = $("productGrid");
+  if (!grid) return;
   const list = PRODUCTS.filter((p) => filter === "Tous" || p.cat === filter);
-  $("productGrid").innerHTML = list.length ? list
+  grid.innerHTML = list.length ? list
     .map((p) => `<article class="product-card">
       <div class="product-art${p.img ? " has-img" : ""}">
         ${p.tag ? `<span class="product-tag">${p.tag}</span>` : ""}
@@ -131,18 +144,23 @@ function renderPay() {
 }
 
 function renderCart() {
-  $("cartItems").innerHTML = cart.length
-    ? cart.map((i) => `<div class="cart-item">
-        <div><b>${i.name}</b><small>${i.price == null ? "Prix sur demande" : money(i.price) + " l'unité"}</small>
-          <div class="qty-controls">
-            <button data-minus="${i.id}" aria-label="Retirer un">−</button><span>${i.qty}</span>
-            <button data-plus="${i.id}" aria-label="Ajouter un">+</button>
-          </div></div>
-        <div><strong>${i.price == null ? "—" : money(i.price * i.qty)}</strong><br><button class="text-link" data-del="${i.id}" style="background:none;border:0;cursor:pointer;margin-top:8px">Supprimer</button></div>
-      </div>`).join("")
-    : '<p class="empty-cart">Votre panier est vide.</p>';
-  $("cartCount").textContent = cart.reduce((s, i) => s + i.qty, 0);
-  $("cartTotal").textContent = totalText();
+  const items = $("cartItems");
+  if (items) {
+    items.innerHTML = cart.length
+      ? cart.map((i) => `<div class="cart-item">
+          <div><b>${i.name}</b><small>${i.price == null ? "Prix sur demande" : money(i.price) + " l'unité"}</small>
+            <div class="qty-controls">
+              <button data-minus="${i.id}" aria-label="Retirer un">−</button><span>${i.qty}</span>
+              <button data-plus="${i.id}" aria-label="Ajouter un">+</button>
+            </div></div>
+          <div><strong>${i.price == null ? "—" : money(i.price * i.qty)}</strong><br><button class="text-link" data-del="${i.id}" style="background:none;border:0;cursor:pointer;margin-top:8px">Supprimer</button></div>
+        </div>`).join("")
+      : '<p class="empty-cart">Votre panier est vide.</p>';
+  }
+  const count = $("cartCount");
+  if (count) count.textContent = cart.reduce((s, i) => s + i.qty, 0);
+  const total = $("cartTotal");
+  if (total) total.textContent = totalText();
   try { localStorage.setItem("sherlcare-cart", JSON.stringify(cart)); } catch (e) {}
   renderPay();
 }
@@ -188,14 +206,14 @@ document.addEventListener("click", (e) => {
   }
 });
 
-$("cartOpen").onclick = () => openCart(true);
-$("cartClose").onclick = () => openCart(false);
-$("drawerBackdrop").onclick = () => openCart(false);
+on("cartOpen", "click", () => openCart(true));
+on("cartClose", "click", () => openCart(false));
+on("drawerBackdrop", "click", () => openCart(false));
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") openCart(false); });
-$("menuToggle").onclick = () => $("mainNav").classList.toggle("open");
-$("mainNav").onclick = (e) => { if (e.target.tagName === "A") $("mainNav").classList.remove("open"); };
+on("menuToggle", "click", () => $("mainNav").classList.toggle("open"));
+on("mainNav", "click", (e) => { if (e.target.tagName === "A") $("mainNav").classList.remove("open"); });
 
-$("checkoutBtn").onclick = () => {
+on("checkoutBtn", "click", () => {
   if (!cart.length) return toast("Votre panier est vide.");
   const lines = cart.map((i) => `• ${i.qty} x ${i.name} — ${i.price == null ? "prix à confirmer" : money(i.price * i.qty)}`).join("\n");
   let text = `Bonjour SHERLCARE, je souhaite commander :\n${lines}\n\nTotal estimé : ${totalText()}`;
@@ -204,18 +222,12 @@ $("checkoutBtn").onclick = () => {
   const ref = $("payRef") ? $("payRef").value.trim() : "";
   if (ref) text += `\nCode de transaction : ${ref}`;
   wa(text);
-};
-
-$("bookingForm").addEventListener("submit", (e) => {
-  e.preventDefault();
-  const f = Object.fromEntries(new FormData(e.target));
-  wa(`Bonjour SHERLCARE, demande de rendez-vous :\nNom : ${f.name}\nTéléphone : ${f.phone}\nPrestation : ${f.service}\nDate : ${f.date} à ${f.time}\nMessage : ${f.message || "-"}`);
-  toast("Demande prête à être envoyée sur WhatsApp");
-  e.target.reset();
 });
 
-$("whatsappContact").href = "https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent("Bonjour SHERLCARE, j'ai une question.");
-$("year").textContent = new Date().getFullYear();
+const wc = $("whatsappContact");
+if (wc) wc.href = "https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent("Bonjour SHERLCARE, j'ai une question.");
+const yr = $("year");
+if (yr) yr.textContent = new Date().getFullYear();
 
 // Image d'accueil (ton logo) à la place des flacons dessinés
 const heroCard = document.querySelector(".hero-card");
@@ -241,6 +253,86 @@ if ("IntersectionObserver" in window) {
   blocks.forEach((el) => { el.classList.add("reveal"); io.observe(el); });
 }
 
+// Rendez-vous : le client choisit soin, date et heure
+function setupBooking() {
+  const f = $("bookingForm");
+  if (!f) return;
+  const DAYS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+  const iso = (d) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+  const today = new Date();
+  const last = new Date(today.getTime() + BOOKING.daysAhead * 86400000);
+  const openTxt = BOOKING.openDays.map((i) => DAYS[i]).join(", ");
+  const hh = (h) => String(h).padStart(2, "0") + ":00";
+  let chosen = "";
+
+  f.innerHTML =
+    '<label>Nom complet<input name="name" required placeholder="Votre nom"></label>' +
+    '<label>Téléphone / WhatsApp<input name="phone" type="tel" required placeholder="+509 ..."></label>' +
+    '<label>Type de soin<select name="service" required><option value="">Choisir un soin</option>' +
+      BOOKING.services.map((s) => "<option>" + s + "</option>").join("") + "</select></label>" +
+    '<label>Date souhaitée<input type="date" name="date" required min="' + iso(today) + '" max="' + iso(last) + '"></label>' +
+    '<div class="bk-label">Heure souhaitée</div>' +
+    '<div class="slots" id="slots"></div>' +
+    '<p class="bk-msg" id="bkMsg"></p>' +
+    '<label>Nombre de personnes<select name="people"><option>1</option><option>2</option><option>3</option><option>4</option></select></label>' +
+    '<label>Message (facultatif)<textarea name="message" rows="2" placeholder="Précisions sur votre demande"></textarea></label>' +
+    '<button class="button button-dark" type="submit">Envoyer la demande sur WhatsApp</button>' +
+    '<p class="form-note">Ouvert : ' + openTxt + ", de " + hh(BOOKING.from) + " à " + hh(BOOKING.to) + ". La demande n'est pas une confirmation : tu reçois la réponse sur WhatsApp.</p>";
+
+  const slotsEl = f.querySelector("#slots");
+  const msgEl = f.querySelector("#bkMsg");
+  const dateEl = f.elements["date"];
+
+  function paint() {
+    chosen = "";
+    slotsEl.innerHTML = "";
+    msgEl.textContent = "";
+    if (!dateEl.value) { msgEl.textContent = "Choisis d'abord une date."; return; }
+    const d = new Date(dateEl.value + "T12:00:00");
+    if (!BOOKING.openDays.includes(d.getDay())) {
+      msgEl.textContent = "Fermé le " + DAYS[d.getDay()] + ". Choisis un autre jour.";
+      return;
+    }
+    const now = new Date();
+    const isToday = dateEl.value === iso(now);
+    for (let h = BOOKING.from; h < BOOKING.to; h++) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "slot";
+      b.textContent = hh(h);
+      b.dataset.t = hh(h);
+      if (isToday && h <= now.getHours()) b.disabled = true;
+      slotsEl.appendChild(b);
+    }
+  }
+
+  dateEl.addEventListener("change", paint);
+  slotsEl.addEventListener("click", (e) => {
+    const b = e.target.closest(".slot");
+    if (!b || b.disabled) return;
+    chosen = b.dataset.t;
+    slotsEl.querySelectorAll(".slot").forEach((s) => s.classList.toggle("on", s === b));
+  });
+
+  f.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const v = Object.fromEntries(new FormData(f));
+    const d = new Date(v.date + "T12:00:00");
+    if (!BOOKING.openDays.includes(d.getDay())) { toast("Ce jour est fermé."); return; }
+    if (!chosen) { toast("Choisis une heure."); return; }
+    const dateTxt = DAYS[d.getDay()] + " " + d.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+    wa("Bonjour SHERLCARE, demande de rendez-vous :\n" +
+      "Nom : " + v.name + "\nTéléphone : " + v.phone + "\nSoin : " + v.service +
+      "\nDate : " + dateTxt + "\nHeure : " + chosen + "\nPersonnes : " + v.people +
+      (v.message ? "\nMessage : " + v.message : ""));
+    toast("Demande prête à être envoyée sur WhatsApp");
+    f.reset();
+    paint();
+  });
+
+  paint();
+}
+
 // Ajouts : logo en bande (optionnel), espace vidéo, contact et paiement
 function setupExtras() {
   const st = document.createElement("style");
@@ -261,7 +353,14 @@ function setupExtras() {
     ".inj-pay label{display:block;font-size:13px;opacity:.85}" +
     ".inj-pay select,.inj-pay input{width:100%;padding:12px;margin-top:8px;border:1px solid #d6cfae;border-radius:10px;background:#fff;color:#14210f;font:inherit}" +
     ".inj-info{margin-top:8px;padding:12px;border-radius:10px;background:#f4efdb;color:#14210f;font-size:14px}" +
-    ".inj-info a{display:block;margin:0 0 8px;padding:12px;border-radius:10px;background:#c9a227;color:#14210f;text-align:center;font-weight:700;text-decoration:none}";
+    ".inj-info a{display:block;margin:0 0 8px;padding:12px;border-radius:10px;background:#c9a227;color:#14210f;text-align:center;font-weight:700;text-decoration:none}" +
+    ".bk-label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#3f453b}" +
+    ".slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:8px}" +
+    ".slot{padding:11px 0;border:1px solid #e4ddcb;background:#fff;color:#0e1712;font-size:14px;cursor:pointer}" +
+    ".slot.on{background:#16241c;border-color:#16241c;color:#e6cf9a}" +
+    ".slot:disabled{opacity:.35;cursor:not-allowed}" +
+    ".bk-msg{margin:0;color:#b00020;font-size:13px}" +
+    ".bk-msg:empty{display:none}";
   document.head.appendChild(st);
 
   if (LOGO) {
@@ -320,6 +419,8 @@ function setupExtras() {
   }
 }
 
-setupExtras();
-renderProducts();
-renderCart();
+function safe(fn) { try { fn(); } catch (e) { console.error(e); } }
+safe(setupExtras);
+safe(setupBooking);
+safe(() => renderProducts());
+safe(renderCart);
