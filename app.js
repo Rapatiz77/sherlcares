@@ -2,7 +2,7 @@
 const WHATSAPP = "50955105543"; // numéro WhatsApp pour te contacter (commandes, rendez-vous)
 const WHATSAPP_AFFICHE = "+509 5510-5543";
 const DEVISE = "Gourde";
-const HERO_PHOTO = "sherl-shampoo.jpg"; // photo affichée en haut de l'accueil
+const HERO_PHOTO = "logo.png"; // image affichée en haut de l'accueil (ton logo)
 // price : null = "Prix sur demande" (ou mets un chiffre, ex. 10)
 const HAIR = [
   { id: 1, name: "SHERL OIL Extra Pousse — 50 ml", shape: "", l1: "SHERL", l2: "OIL", l3: "EXTRA POUSSE", desc: "Hibiscus, gingembre, romarin, feuilles naturelles et huiles végétales. 2 fois par semaine, usage externe." },
@@ -32,8 +32,8 @@ const IMAGES = {
 };
 PRODUCTS.forEach((p) => { p.img = IMAGES[p.id] ? IMAGES[p.id] + ".jpg" : ""; });
 
-// LOGO : envoie ton image dans le dépôt sous le nom logo.png
-const LOGO = "logo.png";
+// LOGO : bande de logo sous l'en-tête. "" = désactivée (le logo est déjà dans la bannière)
+const LOGO = "";
 
 // VIDÉO PUB : envoie pub.mp4 dans le dépôt (25 Mo maximum depuis le navigateur),
 // ou colle un lien YouTube de la forme https://www.youtube.com/embed/XXXX
@@ -217,12 +217,15 @@ $("bookingForm").addEventListener("submit", (e) => {
 $("whatsappContact").href = "https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent("Bonjour SHERLCARE, j'ai une question.");
 $("year").textContent = new Date().getFullYear();
 
-// Photo d'accueil à la place des flacons dessinés
+// Image d'accueil (ton logo) à la place des flacons dessinés
 const heroCard = document.querySelector(".hero-card");
 if (heroCard && HERO_PHOTO) {
   const hp = new Image();
-  hp.alt = "SHERLCARE";
+  hp.alt = "SHERLCARE Cosmétiques - La beauté commence par le soin";
   hp.onload = () => {
+    hp.style.objectFit = "contain";
+    hp.style.objectPosition = "center";
+    hp.style.background = "#0b1f12";
     heroCard.querySelectorAll(".bottle").forEach((b) => b.remove());
     heroCard.prepend(hp);
   };
@@ -238,7 +241,7 @@ if ("IntersectionObserver" in window) {
   blocks.forEach((el) => { el.classList.add("reveal"); io.observe(el); });
 }
 
-// Ajouts : logo, espace vidéo, contact et paiement (créés par le code, sans toucher à index.html)
+// Ajouts : logo en bande (optionnel), espace vidéo, contact et paiement
 function setupExtras() {
   const st = document.createElement("style");
   st.textContent =
@@ -283,4 +286,40 @@ function setupExtras() {
     host.after(sec);
     const box = sec.querySelector("#videoBox");
     if (VIDEO.youtube) {
-      box.innerHTML = '<iframe src="' + VIDEO.youtube + '" title="Vidéo SHERLCARE" allow="autoplay; encrypted-media; fu
+      box.innerHTML = '<iframe src="' + VIDEO.youtube + '" title="Vidéo SHERLCARE" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>';
+    } else if (VIDEO.file) {
+      const v = document.createElement("video");
+      v.src = VIDEO.file;
+      v.controls = true;
+      v.playsInline = true;
+      v.preload = "metadata";
+      v.onerror = () => { box.innerHTML = '<p class="inj-ph">Vidéo bientôt disponible</p>'; };
+      box.appendChild(v);
+    }
+  }
+
+  const info = document.createElement("section");
+  info.className = "inj-video";
+  let boxes = '<div class="inj-box"><small>NOUS CONTACTER</small><a href="https://wa.me/' + WHATSAPP + '" target="_blank" rel="noopener">WhatsApp ' + WHATSAPP_AFFICHE + "</a><span>Commandes, rendez-vous et questions</span></div>";
+  if (PAY.moncash) boxes += '<div class="inj-box"><small>PAIEMENT</small><b>MonCash ' + PAY.moncash + "</b><span>Envoie le montant, puis le code de transaction</span></div>";
+  info.innerHTML = "<h2>Contact et paiement</h2><div class=\"inj-contact\">" + boxes + "</div>";
+  const ft = document.querySelector("footer");
+  ft ? ft.before(info) : document.body.appendChild(info);
+
+  const checkout = $("checkoutBtn");
+  if (checkout) {
+    const pay = document.createElement("div");
+    pay.className = "inj-pay";
+    pay.innerHTML =
+      '<label for="payMethod">Paiement</label>' +
+      '<select id="payMethod">' + payMethods().map(([k, n]) => '<option value="' + k + '">' + n + "</option>").join("") + "</select>" +
+      '<div id="payInfo" class="inj-info"></div>' +
+      '<input id="payRef" placeholder="Code de transaction (si tu as déjà payé)">';
+    checkout.before(pay);
+    $("payMethod").addEventListener("change", renderPay);
+  }
+}
+
+setupExtras();
+renderProducts();
+renderCart();
