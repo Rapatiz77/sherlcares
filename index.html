@@ -10,6 +10,15 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <style>
+    .care-art{display:block;position:relative;overflow:hidden}
+    .care-art:before,.care-art:after{display:none}
+    .care-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 25%}
+    @media(max-width:700px){
+      .care-art{min-height:0}
+      .care-art img{position:static;height:auto}
+    }
+  </style>
   <script>
     window.onerror = function (m, s, l) {
       var d = document.createElement("div");
@@ -73,7 +82,7 @@
     </section>
 
     <section class="care-banner" id="soins">
-      <div class="care-art"><div class="care-circle">SHERL<br><b>CARE</b><small>HAIR RITUAL</small></div></div>
+      <div class="care-art"><img src="sherlcare-hero.jpg" alt="SHERLCARE Cosmétiques"></div>
       <div class="care-copy">
         <p class="eyebrow">PRENDRE SOIN DE SOI</p>
         <h2>Votre prochain rendez-vous<br><em>commence ici.</em></h2>
