@@ -1,22 +1,26 @@
 /* ====== À MODIFIER ====== */
 const WHATSAPP = "50955105543"; // numéro WhatsApp pour te contacter (commandes, rendez-vous)
 const WHATSAPP_AFFICHE = "+509 5510-5543";
-const DEVISE = "Gourde";
+const DEVISE = "gdes";
 const HERO_PHOTO = "logo.png"; // image affichée en haut de l'accueil (ton logo)
-// price : null = "Prix sur demande" (ou mets un chiffre, ex. 10)
+// price : null = "Prix sur demande" (ou mets un chiffre, ex. 1000)
+// sizes : plusieurs formats pour un même produit (le client choisit dans une liste)
 const HAIR = [
-  { id: 1, name: "SHERL OIL Extra Pousse — 50 ml", shape: "", l1: "SHERL", l2: "OIL", l3: "EXTRA POUSSE", desc: "Hibiscus, gingembre, romarin, feuilles naturelles et huiles végétales. 2 fois par semaine, usage externe." },
-  { id: 2, name: "Huile Coiffante — 50 ml", shape: "", l1: "SHERLCARE", l2: "HUILE", l3: "COIFFANTE", desc: "Huile naturelle pour la pousse des cheveux." },
+  { id: 1, name: "SHERL OIL Extra Pousse", shape: "", l1: "SHERL", l2: "OIL", l3: "EXTRA POUSSE", desc: "Traitement pour l'alopécie et la pousse des cheveux. Hibiscus, gingembre, romarin, feuilles naturelles et huiles végétales. 2 fois par semaine, usage externe.", sizes: [{ label: "Grand format", price: 3000 }, { label: "8 oz", price: 1500 }] },
+  { id: 2, name: "Huile Coiffante", shape: "", l1: "SHERLCARE", l2: "HUILE", l3: "COIFFANTE", desc: "Huile naturelle pour coiffer et faire pousser les cheveux.", price: 3000 },
   { id: 3, name: "Soin coiffant nourrissant — 300 ml", shape: "jar", l1: "SHERLCARE", l2: "SOIN", l3: "COIFFANT", desc: "Hydrate, nourrit et répare. Apporte brillance et protection." },
-  { id: 4, name: "SHERL GEL Extra Pousse", shape: "jar", l1: "SHERL", l2: "GEL", l3: "EXTRA POUSSE", desc: "Hibiscus, gingembre, romarin et feuilles naturelles. Pour des cheveux plus longs et plus forts." },
-  { id: 5, name: "SHERL POMMADE Extra Pousse — 120 g", shape: "jar", l1: "SHERL", l2: "POMMADE", l3: "EXTRA POUSSE", desc: "Persil, beurre de karité, beurre de cacao et huile d'olive." },
-  { id: 6, name: "SHERL SHAMPOO", shape: "shampoo", l1: "SHERL", l2: "SHAMPOO", l3: "TOUS CHEVEUX", desc: "Pour des cheveux forts, sains et brillants. Convient à tous les types de cheveux." },
+  { id: 4, name: "SHERL GEL Extra Pousse", shape: "jar", l1: "SHERL", l2: "GEL", l3: "EXTRA POUSSE", desc: "Hibiscus, gingembre, romarin et feuilles naturelles. Pour des cheveux plus longs et plus forts.", price: 1000 },
+  { id: 5, name: "SHERL POMMADE Extra Pousse — 120 g", shape: "jar", l1: "SHERL", l2: "POMMADE", l3: "EXTRA POUSSE", desc: "Persil, beurre de karité, beurre de cacao et huile d'olive.", price: 1500 },
+  { id: 6, name: "SHERL SHAMPOO", shape: "shampoo", l1: "SHERL", l2: "SHAMPOO", l3: "TOUS CHEVEUX", desc: "Pour des cheveux forts, sains et brillants. Convient à tous les types de cheveux.", sizes: [{ label: "16 oz", price: 1500 }, { label: "8 oz", price: 1000 }] },
   { id: 7, name: "Shampoo spécial pour homme", shape: "shampoo", l1: "SHERL", l2: "SHAMPOO", l3: "POUR HOMME", desc: "Nettoie, fortifie et revitalise. Conçu pour les cheveux texturés." },
-  { id: 8, name: "Après-shampooing", shape: "", l1: "SHERLCARE", l2: "APRÈS", l3: "SHAMPOOING", desc: "Soin démêlant et nourrissant au karité, à l'argan et aux protéines de soie." }
-].map((p) => ({ ...p, cat: "Cheveux", price: null }));
+  { id: 8, name: "Après-shampooing", shape: "", l1: "SHERLCARE", l2: "APRÈS", l3: "SHAMPOOING", desc: "Soin démêlant et nourrissant au karité, à l'argan et aux protéines de soie.", sizes: [{ label: "16 oz", price: 1500 }, { label: "8 oz", price: 1000 }] },
+  { id: 9, name: "SHERLLOCKS Shampoo mixte (homme, femme)", shape: "shampoo", l1: "SHERLLOCKS", l2: "SHAMPOO", l3: "MIXTE", desc: "Nourrit en profondeur, favorise la croissance, réduit la casse et la chute. Pour tous types de cheveux : crépus, frisés, bouclés, locks et naturels.", price: 1250 },
+  { id: 10, name: "SHERLLOCKS Après-shampooing mixte — 250 ml", shape: "shampoo", l1: "SHERLLOCKS", l2: "APRÈS", l3: "SHAMPOOING", desc: "Hydrate et assouplit, apporte brillance et vitalité. 100 % naturel, pour des cheveux forts, sains et brillants.", price: 1250 },
+  { id: 11, name: "SHERLLOCKS Oil Extra Pousse — 4 oz", shape: "", l1: "SHERLLOCKS", l2: "OIL", l3: "EXTRA POUSSE", desc: "Hibiscus, gingembre, persil et huile d'olive, pour la pousse des cheveux et des locks.", price: 3000 }
+].map((p) => ({ cat: "Cheveux", price: null, ...p }));
 
 const SOAPS = ["Carotte", "Citron", "Curcuma", "Avoine", "Riz", "Charbon actif", "Neem"].map((n, i) => ({
-  id: 20 + i, name: "SHERL SOAP — " + n, cat: "Savons", price: null, shape: "soap",
+  id: 20 + i, name: "SHERL SOAP — " + n, cat: "Savons", price: 500, shape: "soap",
   l1: "SHERL", l2: "SOAP", l3: n.toUpperCase(),
   desc: "Savon éclaircissant à base naturelle. Contre les taches, les acnés et les démangeaisons de la peau."
 }));
@@ -27,6 +31,7 @@ const PRODUCTS = [...HAIR, ...SOAPS];
 const IMAGES = {
   1: "sherl-oil", 2: "huile-coiffante", 3: "soin-coiffant", 4: "sherl-gel",
   5: "sherl-pommade", 6: "sherl-shampoo", 7: "shampoo-homme", 8: "apres-shampooing",
+  9: "sherllocks-shampoo", 10: "sherllocks-apres-shampooing", 11: "sherllocks-oil",
   20: "soap-carotte", 21: "soap-citron", 22: "soap-curcuma", 23: "soap-avoine",
   24: "soap-riz", 25: "soap-charbon", 26: "soap-neem"
 };
@@ -57,9 +62,21 @@ const BOOKING = {
 
 const $ = (id) => document.getElementById(id);
 const on = (id, ev, fn) => { const el = $(id); if (el) el.addEventListener(ev, fn); };
-const money = (n) => (n == null ? "Prix sur demande" : n.toFixed(2).replace(".", ",") + " " + DEVISE);
+const money = (n) => (n == null ? "Prix sur demande" : String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " " + DEVISE);
 let cart = [];
-try { cart = JSON.parse(localStorage.getItem("sherlcare-cart")) || []; } catch (e) {}
+try { cart = JSON.parse(localStorage.getItem("sherlcare-cart2")) || []; } catch (e) {}
+
+let currentFilter = "Tous";
+const sel = {}; // format choisi par produit (id -> index dans sizes)
+
+function pick(p) {
+  if (p.sizes) {
+    const i = sel[p.id] || 0;
+    const s = p.sizes[i];
+    return { price: s.price, label: s.label, key: p.id + "-" + i };
+  }
+  return { price: p.price, label: "", key: String(p.id) };
+}
 
 function toast(msg) {
   const t = $("toast");
@@ -74,12 +91,20 @@ function wa(text) {
   window.open("https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent(text), "_blank", "noopener");
 }
 
-function renderProducts(filter = "Tous") {
+function renderProducts(filter = currentFilter) {
+  currentFilter = filter;
   const grid = $("productGrid");
   if (!grid) return;
   const list = PRODUCTS.filter((p) => filter === "Tous" || p.cat === filter);
   grid.innerHTML = list.length ? list
-    .map((p) => `<article class="product-card">
+    .map((p) => {
+      const c = pick(p);
+      const sizeSel = p.sizes
+        ? `<select class="size-select" data-size="${p.id}" aria-label="Choisir le format">${p.sizes
+            .map((s, i) => `<option value="${i}"${i === (sel[p.id] || 0) ? " selected" : ""}>${s.label} — ${money(s.price)}</option>`)
+            .join("")}</select>`
+        : "";
+      return `<article class="product-card">
       <div class="product-art${p.img ? " has-img" : ""}">
         ${p.tag ? `<span class="product-tag">${p.tag}</span>` : ""}
         ${p.img
@@ -90,12 +115,14 @@ function renderProducts(filter = "Tous") {
         <div class="product-category">${p.cat === "Cheveux" ? "Soins capillaires" : p.cat}</div>
         <h3>${p.name}</h3>
         <p class="product-description">${p.desc}</p>
+        ${sizeSel}
         <div class="product-bottom">
-          <span class="price">${money(p.price)}</span>
+          <span class="price">${money(c.price)}</span>
           <button class="add-button" data-add="${p.id}" aria-label="Ajouter ${p.name} au panier">+</button>
         </div>
         <a class="share-link" href="https://wa.me/?text=${encodeURIComponent("Découvre " + p.name + " chez SHERLCARE : " + location.href)}" target="_blank" rel="noopener">Partager</a>
-      </div></article>`).join("")
+      </div></article>`;
+    }).join("")
     : '<p class="empty-cart">Bientôt disponible.</p>';
 }
 
@@ -161,7 +188,7 @@ function renderCart() {
   if (count) count.textContent = cart.reduce((s, i) => s + i.qty, 0);
   const total = $("cartTotal");
   if (total) total.textContent = totalText();
-  try { localStorage.setItem("sherlcare-cart", JSON.stringify(cart)); } catch (e) {}
+  try { localStorage.setItem("sherlcare-cart2", JSON.stringify(cart)); } catch (e) {}
   renderPay();
 }
 
@@ -192,18 +219,28 @@ document.addEventListener("click", (e) => {
   const d = b.dataset;
   if (d.add) {
     const p = PRODUCTS.find((x) => x.id == d.add);
-    const item = cart.find((i) => i.id === p.id);
-    item ? item.qty++ : cart.push({ id: p.id, name: p.name, price: p.price, qty: 1 });
+    const c = pick(p);
+    const name = p.name + (c.label ? " (" + c.label + ")" : "");
+    const item = cart.find((i) => i.id === c.key);
+    item ? item.qty++ : cart.push({ id: c.key, name: name, price: c.price, qty: 1 });
     renderCart();
-    toast(p.name + " ajouté au panier");
+    toast(name + " ajouté au panier");
   }
-  if (d.plus) change(+d.plus, 1);
-  if (d.minus) change(+d.minus, -1);
-  if (d.del) change(+d.del, -999);
+  if (d.plus) change(d.plus, 1);
+  if (d.minus) change(d.minus, -1);
+  if (d.del) change(d.del, -999);
   if (d.filter) {
     document.querySelectorAll(".filter").forEach((f) => f.classList.toggle("active", f === b));
     renderProducts(d.filter);
   }
+});
+
+// Choix du format (16 oz / 8 oz ...) sur une fiche produit
+document.addEventListener("change", (e) => {
+  const s = e.target.closest ? e.target.closest(".size-select") : null;
+  if (!s) return;
+  sel[s.dataset.size] = +s.value;
+  renderProducts(currentFilter);
 });
 
 on("cartOpen", "click", () => openCart(true));
@@ -354,6 +391,7 @@ function setupExtras() {
     ".inj-pay select,.inj-pay input{width:100%;padding:12px;margin-top:8px;border:1px solid #d6cfae;border-radius:10px;background:#fff;color:#14210f;font:inherit}" +
     ".inj-info{margin-top:8px;padding:12px;border-radius:10px;background:#f4efdb;color:#14210f;font-size:14px}" +
     ".inj-info a{display:block;margin:0 0 8px;padding:12px;border-radius:10px;background:#c9a227;color:#14210f;text-align:center;font-weight:700;text-decoration:none}" +
+    ".size-select{width:100%;padding:10px;margin:0 0 12px;border:1px solid #d6cfae;border-radius:8px;background:#fff;color:#14210f;font:inherit;font-size:14px}" +
     ".bk-label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#3f453b}" +
     ".slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:8px}" +
     ".slot{padding:11px 0;border:1px solid #e4ddcb;background:#fff;color:#0e1712;font-size:14px;cursor:pointer}" +
