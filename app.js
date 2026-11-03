@@ -1,13 +1,13 @@
 /* ====== À MODIFIER ====== */
-const WHATSAPP = "50955105543"; // numéro WhatsApp pour te contacter (commandes, rendez-vous)
+const WHATSAPP = "50955105543"; // numéro WhatsApp pour vous contacter (commandes, rendez-vous)
 const WHATSAPP_AFFICHE = "+509 5510-5543";
 const DEVISE = "gdes";
-const HERO_PHOTO = "logo.png"; // image affichée en haut de l'accueil (ton logo)
+const HERO_PHOTO = "logo.png"; // image affichée en haut de l'accueil (le logo)
 // price : null = "Prix sur demande" (ou mets un chiffre, ex. 1000)
 // sizes : plusieurs formats pour un même produit (le client choisit dans une liste)
 const HAIR = [
   { id: 1, name: "SHERL OIL Extra Pousse", shape: "", l1: "SHERL", l2: "OIL", l3: "EXTRA POUSSE", desc: "Traitement pour l'alopécie et la pousse des cheveux. Hibiscus, gingembre, romarin, feuilles naturelles et huiles végétales. 2 fois par semaine, usage externe.", sizes: [{ label: "Grand format", price: 3000 }, { label: "8 oz", price: 1500 }] },
-  { id: 2, name: "Huile Coiffante", shape: "", l1: "SHERLCARE", l2: "HUILE", l3: "COIFFANTE", desc: "Huile naturelle pour coiffer et faire pousser les cheveux.", price: 3000 },
+  { id: 2, name: "Huile Coiffante", shape: "", l1: "SHERLCARE", l2: "HUILE", l3: "COIFFANTE", desc: "Huile naturelle pour coiffer et faire pousser les cheveux.", sizes: [{ label: "Grand format", price: 3000 }, { label: "Moyen bidon", price: 1500 }] },
   { id: 3, name: "Soin coiffant nourrissant — 300 ml", shape: "jar", l1: "SHERLCARE", l2: "SOIN", l3: "COIFFANT", desc: "Hydrate, nourrit et répare. Apporte brillance et protection." },
   { id: 4, name: "SHERL GEL Extra Pousse", shape: "jar", l1: "SHERL", l2: "GEL", l3: "EXTRA POUSSE", desc: "Hibiscus, gingembre, romarin et feuilles naturelles. Pour des cheveux plus longs et plus forts.", price: 1000 },
   { id: 5, name: "SHERL POMMADE Extra Pousse — 120 g", shape: "jar", l1: "SHERL", l2: "POMMADE", l3: "EXTRA POUSSE", desc: "Persil, beurre de karité, beurre de cacao et huile d'olive.", price: 1500 },
@@ -44,11 +44,10 @@ const LOGO = "";
 // ou colle un lien YouTube de la forme https://www.youtube.com/embed/XXXX
 const VIDEO = { youtube: "", file: "pub.mp4" };
 
-// PAIEMENT : moncash = ton numéro MonCash (affiché dans le panier pour payer)
-// natcash : ton numéro NatCash, "" si tu n'en as pas
-// paypalUser : ton nom PayPal.me (la partie après paypal.me/), "" si tu n'en as pas
-// rateHTG : combien de gourdes pour 1 USD (ex. 130) pour afficher le montant en gourdes. 0 = ne pas afficher
-const PAY = { moncash: "+509 4767-8252", natcash: "", paypalUser: "", rateHTG: 0 };
+// PAIEMENT : moncash = numéro MonCash (affiché dans le panier pour payer)
+// natcash : numéro NatCash, "" si aucun
+// paypalUser : nom PayPal.me (la partie après paypal.me/), "" si aucun
+const PAY = { moncash: "+509 4767-8252", natcash: "", paypalUser: "" };
 
 // RENDEZ-VOUS : modifie ces réglages selon ton salon
 const BOOKING = {
@@ -120,7 +119,7 @@ function renderProducts(filter = currentFilter) {
           <span class="price">${money(c.price)}</span>
           <button class="add-button" data-add="${p.id}" aria-label="Ajouter ${p.name} au panier">+</button>
         </div>
-        <a class="share-link" href="https://wa.me/?text=${encodeURIComponent("Découvre " + p.name + " chez SHERLCARE : " + location.href)}" target="_blank" rel="noopener">Partager</a>
+        <a class="share-link" href="https://wa.me/?text=${encodeURIComponent("Découvrez " + p.name + " chez SHERLCARE : " + location.href)}" target="_blank" rel="noopener">Partager</a>
       </div></article>`;
     }).join("")
     : '<p class="empty-cart">Bientôt disponible.</p>';
@@ -138,10 +137,6 @@ function totalText() {
   return money(sum) + (unpriced ? " + articles sur demande" : "");
 }
 
-function htgText(usd) {
-  return PAY.rateHTG > 0 ? " (≈ " + Math.ceil(usd * PAY.rateHTG).toLocaleString("fr-FR") + " HTG)" : "";
-}
-
 function payMethods() {
   const m = [];
   if (PAY.moncash) m.push(["moncash", "MonCash"]);
@@ -157,15 +152,15 @@ function renderPay() {
   const m = sel.value;
   const { sum, unpriced, hasPriced } = cartSum();
   const exact = hasPriced && !unpriced;
-  const amount = exact ? money(sum) + htgText(sum) : "le montant confirmé par WhatsApp";
+  const amount = exact ? money(sum) : "le montant confirmé par WhatsApp";
   let h = "";
-  if (m === "moncash") h = "Envoie " + amount + " au MonCash <b>" + PAY.moncash + "</b>, puis écris le code de transaction ci-dessous.";
-  else if (m === "natcash") h = "Envoie " + amount + " au NatCash <b>" + PAY.natcash + "</b>, puis écris le code de transaction ci-dessous.";
+  if (m === "moncash") h = "Envoyez " + amount + " au MonCash <b>" + PAY.moncash + "</b>, puis écrivez le code de transaction ci-dessous.";
+  else if (m === "natcash") h = "Envoyez " + amount + " au NatCash <b>" + PAY.natcash + "</b>, puis écrivez le code de transaction ci-dessous.";
   else if (m === "paypal") {
     h = exact
-      ? '<a target="_blank" rel="noopener" href="https://www.paypal.me/' + PAY.paypalUser + "/" + sum.toFixed(2) + DEVISE + '">Payer ' + money(sum) + " avec PayPal</a>Ensuite, écris le code de transaction ci-dessous."
+      ? '<a target="_blank" rel="noopener" href="https://www.paypal.me/' + PAY.paypalUser + "/" + sum.toFixed(2) + DEVISE + '">Payer ' + money(sum) + " avec PayPal</a>Ensuite, écrivez le code de transaction ci-dessous."
       : "Le montant doit d'abord être confirmé par WhatsApp avant de payer avec PayPal.";
-  } else h = "Tu paies à la réception de ta commande ou en boutique.";
+  } else h = "Vous payez à la réception de votre commande ou en boutique.";
   $("payInfo").innerHTML = h;
   $("payRef").style.display = m === "cash" ? "none" : "block";
 }
@@ -266,7 +261,7 @@ if (wc) wc.href = "https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent("B
 const yr = $("year");
 if (yr) yr.textContent = new Date().getFullYear();
 
-// Image d'accueil (ton logo) à la place des flacons dessinés
+// Image d'accueil (le logo) à la place des flacons dessinés
 const heroCard = document.querySelector(".hero-card");
 if (heroCard && HERO_PHOTO) {
   const hp = new Image();
@@ -314,7 +309,7 @@ function setupBooking() {
     '<label>Nombre de personnes<select name="people"><option>1</option><option>2</option><option>3</option><option>4</option></select></label>' +
     '<label>Message (facultatif)<textarea name="message" rows="2" placeholder="Précisions sur votre demande"></textarea></label>' +
     '<button class="button button-dark" type="submit">Envoyer la demande sur WhatsApp</button>' +
-    '<p class="form-note">Ouvert : ' + openTxt + ", de " + hh(BOOKING.from) + " à " + hh(BOOKING.to) + ". La demande n'est pas une confirmation : tu reçois la réponse sur WhatsApp.</p>";
+    '<p class="form-note">Ouvert : ' + openTxt + ", de " + hh(BOOKING.from) + " à " + hh(BOOKING.to) + ". La demande n'est pas une confirmation : vous recevrez la réponse sur WhatsApp.</p>";
 
   const slotsEl = f.querySelector("#slots");
   const msgEl = f.querySelector("#bkMsg");
@@ -324,10 +319,10 @@ function setupBooking() {
     chosen = "";
     slotsEl.innerHTML = "";
     msgEl.textContent = "";
-    if (!dateEl.value) { msgEl.textContent = "Choisis d'abord une date."; return; }
+    if (!dateEl.value) { msgEl.textContent = "Choisissez d'abord une date."; return; }
     const d = new Date(dateEl.value + "T12:00:00");
     if (!BOOKING.openDays.includes(d.getDay())) {
-      msgEl.textContent = "Fermé le " + DAYS[d.getDay()] + ". Choisis un autre jour.";
+      msgEl.textContent = "Fermé le " + DAYS[d.getDay()] + ". Choisissez un autre jour.";
       return;
     }
     const now = new Date();
@@ -356,7 +351,7 @@ function setupBooking() {
     const v = Object.fromEntries(new FormData(f));
     const d = new Date(v.date + "T12:00:00");
     if (!BOOKING.openDays.includes(d.getDay())) { toast("Ce jour est fermé."); return; }
-    if (!chosen) { toast("Choisis une heure."); return; }
+    if (!chosen) { toast("Choisissez une heure."); return; }
     const dateTxt = DAYS[d.getDay()] + " " + d.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
     wa("Bonjour SHERLCARE, demande de rendez-vous :\n" +
       "Nom : " + v.name + "\nTéléphone : " + v.phone + "\nSoin : " + v.service +
@@ -438,7 +433,7 @@ function setupExtras() {
   const info = document.createElement("section");
   info.className = "inj-video";
   let boxes = '<div class="inj-box"><small>NOUS CONTACTER</small><a href="https://wa.me/' + WHATSAPP + '" target="_blank" rel="noopener">WhatsApp ' + WHATSAPP_AFFICHE + "</a><span>Commandes, rendez-vous et questions</span></div>";
-  if (PAY.moncash) boxes += '<div class="inj-box"><small>PAIEMENT</small><b>MonCash ' + PAY.moncash + "</b><span>Envoie le montant, puis le code de transaction</span></div>";
+  if (PAY.moncash) boxes += '<div class="inj-box"><small>PAIEMENT</small><b>MonCash ' + PAY.moncash + "</b><span>Envoyez le montant, puis le code de transaction</span></div>";
   info.innerHTML = "<h2>Contact et paiement</h2><div class=\"inj-contact\">" + boxes + "</div>";
   const ft = document.querySelector("footer");
   ft ? ft.before(info) : document.body.appendChild(info);
@@ -451,7 +446,7 @@ function setupExtras() {
       '<label for="payMethod">Paiement</label>' +
       '<select id="payMethod">' + payMethods().map(([k, n]) => '<option value="' + k + '">' + n + "</option>").join("") + "</select>" +
       '<div id="payInfo" class="inj-info"></div>' +
-      '<input id="payRef" placeholder="Code de transaction (si tu as déjà payé)">';
+      '<input id="payRef" placeholder="Code de transaction (si vous avez déjà payé)">';
     checkout.before(pay);
     $("payMethod").addEventListener("change", renderPay);
   }
